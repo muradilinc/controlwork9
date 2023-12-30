@@ -46,7 +46,9 @@ const TransactionForm: React.FC<Props> = ({id, isEdit}) => {
         createdAd: singleTran.item.createdAd,
       });
     }
-  }, [categories, singleTran, transaction]);
+  }, [categories, singleTran]);
+
+  console.log('log');
 
   const createHandler = async (event: React.FormEvent) => {
     event.preventDefault();
