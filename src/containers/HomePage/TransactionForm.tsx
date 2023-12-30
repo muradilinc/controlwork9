@@ -41,7 +41,7 @@ const TransactionForm: React.FC<Props> = ({id, isEdit}) => {
   useEffect(() => {
     if (singleTran) {
       setTransaction({
-        ...transaction,
+        category: '',
         amount: singleTran.item.amount,
         createdAd: singleTran.item.createdAd,
       });
