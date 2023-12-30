@@ -5,7 +5,7 @@ import {useAppDispatch, useAppSelector} from '../../redux/hooks';
 import Modal from '../../components/Modal/Modal';
 import {useLocation, useNavigate} from 'react-router-dom';
 import {ADD_PAGE, HOME_PAGE} from '../../constants/routes';
-import {getTransactions} from '../../store/transaction/transactionThunk';
+import {deleteTransaction, getTransactions} from '../../store/transaction/transactionThunk';
 import {selectTransactions} from '../../store/transaction/transactionSlice';
 import dayjs from 'dayjs';
 import {NotePencil, Trash} from '@phosphor-icons/react';
@@ -30,19 +30,26 @@ const HomePage = () => {
     navigate(HOME_PAGE);
   };
 
+  const deleteHandler = async (id: string) => {
+    await dispatch(deleteTransaction(id));
+    await dispatch(getTransactions());
+  };
+
   return (
     <div>
       <div className="mb-2">
-        Total:
-        {
-          transactions.reduce((sum, item) => {
-            if (item.categoryType.type.toLowerCase() === 'income') {
-              return sum + Number(item.item.amount);
-            } else {
-              return sum - Number(item.item.amount);
-            }
-          }, 0)
-        }
+        <p className="text-xl">
+          <span className="me-3">Total:</span>
+          {
+            transactions.reduce((sum, item) => {
+              if (item.categoryType.type.toLowerCase() === 'income') {
+                return sum + Number(item.item.amount);
+              } else {
+                return sum - Number(item.item.amount);
+              }
+            }, 0)
+          }
+        </p>
       </div>
       <div className="grid grid-cols-1 gap-y-3">
         {
@@ -58,10 +65,12 @@ const HomePage = () => {
               }
               <div>
                 <button
+
                 >
                   <NotePencil size={32}/>
                 </button>
                 <button
+                  onClick={() => deleteHandler(transaction.id)}
                 >
                   <Trash size={32}/>
                 </button>

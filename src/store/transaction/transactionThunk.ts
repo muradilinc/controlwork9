@@ -34,3 +34,10 @@ export const getTransactions = createAsyncThunk<ResponseTransactions[]>(
     }));
   },
 );
+
+export const deleteTransaction = createAsyncThunk<void, string>(
+  'transaction/delete',
+  async (id) => {
+    await axiosApi.delete(`/transactions/${id}.json`);
+  },
+);
