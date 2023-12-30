@@ -15,6 +15,8 @@ const HomePage = () => {
   const dispatch = useAppDispatch();
   const transactions = useAppSelector(selectTransactions);
   const transactionsLoading = useAppSelector(selectGetTransLoading);
+  const [idTran, setIdTran] = useState('');
+  const [isEdit, setEdit] = useState(false);
   const [modal, setModal] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -33,7 +35,10 @@ const HomePage = () => {
   };
 
   const selectTran = async (id: string) => {
+    setEdit(true);
+    setIdTran(id);
     await dispatch(getTransaction(id));
+    navigate(ADD_PAGE);
   };
 
   const deleteHandler = async (id: string) => {
@@ -96,7 +101,10 @@ const HomePage = () => {
         show={modal}
         onClose={closeModal}
       >
-        <TransactionForm/>
+        <TransactionForm
+          id={idTran}
+          isEdit={isEdit}
+        />
       </Modal>
     </div>
   );

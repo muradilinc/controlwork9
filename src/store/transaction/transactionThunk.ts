@@ -35,20 +35,35 @@ export const getTransactions = createAsyncThunk<ResponseTransactions[]>(
   },
 );
 
-export const getTransaction = createAsyncThunk<void, string>(
+export const getTransaction = createAsyncThunk<ResponseTransactions, string>(
   'transaction/getOne',
   async (id) => {
-    const respone = await axiosApi.get(`/transactions/${id}.json`);
-    console.log(respone.data);
+    const responseTran = await axiosApi.get<Transaction | null>(`/transactions/${id}.json`);
+    if (!responseTran.data) {
+      throw new Error('No found!');
+    }
+
+    const responseCategory = await axiosApi.get(`/categories/${responseTran.data.category}.json`);
+
+    return {
+      item: responseTran.data,
+      id,
+      categoryType: responseCategory.data,
+    };
   }
 );
 
-// export const updateTransaction = createAsyncThunk<void>(
-//   'transaction/update',
-//   async () => {
-//     await axiosApi.put(`/transactions/${id}.json`, transaction);
-//   }
-// );
+interface updateTran {
+  id: string,
+  transaction: Transaction,
+}
+
+export const updateTransaction = createAsyncThunk<void, updateTran>(
+  'transaction/update',
+  async ({id, transaction}) => {
+    await axiosApi.put(`/transactions/${id}.json`, transaction);
+  }
+);
 
 export const deleteTransaction = createAsyncThunk<void, string>(
   'transaction/delete',

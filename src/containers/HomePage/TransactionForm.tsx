@@ -1,17 +1,23 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useAppDispatch, useAppSelector} from '../../redux/hooks';
 import {selectCategories} from '../../store/category/categorySlice';
 import {Transaction} from '../../types';
-import {createTransaction, getTransactions} from '../../store/transaction/transactionThunk';
+import {createTransaction, getTransactions, updateTransaction} from '../../store/transaction/transactionThunk';
 import {useNavigate} from 'react-router-dom';
 import {HOME_PAGE} from '../../constants/routes';
-import {selectCreateTranLoading} from '../../store/transaction/transactionSlice';
+import {selectCreateTranLoading, selectTransaction} from '../../store/transaction/transactionSlice';
 import {ButtonSpinner} from '../../components/Spinner/ButtonSpinner';
 
-const TransactionForm = () => {
+interface Props {
+  id: string;
+  isEdit: boolean;
+}
+
+const TransactionForm: React.FC<Props> = ({id, isEdit}) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const categories = useAppSelector(selectCategories);
+  const singleTran = useAppSelector(selectTransaction);
   const createLoading = useAppSelector(selectCreateTranLoading);
   const [type, setType] = useState('');
   const [transaction, setTransaction] = useState<Transaction>({
@@ -31,13 +37,28 @@ const TransactionForm = () => {
     }));
   };
 
+
+  useEffect(() => {
+    if (singleTran) {
+      setTransaction({
+        ...transaction,
+        amount: singleTran.item.amount,
+        createdAd: singleTran.item.createdAd,
+      });
+    }
+  }, [categories, singleTran, transaction]);
+
   const createHandler = async (event: React.FormEvent) => {
     event.preventDefault();
     const dataTransaction: Transaction = {
       ...transaction,
       createdAd: new Date().toString(),
     };
-    await dispatch(createTransaction(dataTransaction));
+    if (isEdit) {
+      await dispatch(updateTransaction({id, transaction: dataTransaction}));
+    } else {
+      await dispatch(createTransaction(dataTransaction));
+    }
     await dispatch(getTransactions());
     navigate(HOME_PAGE);
     setTransaction({
@@ -114,6 +135,7 @@ const TransactionForm = () => {
         <button
           type='button'
           className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+          onClick={() => navigate(HOME_PAGE)}
         >
           Cancel
         </button>
