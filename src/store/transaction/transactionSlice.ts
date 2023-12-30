@@ -1,4 +1,4 @@
-import {ResponseTransactions, Transaction} from '../../types';
+import {ResponseTransactions} from '../../types';
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {getTransactions} from './transactionThunk';
 import {RootState} from '../../redux/store';

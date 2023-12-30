@@ -7,6 +7,8 @@ import {useLocation, useNavigate} from 'react-router-dom';
 import {ADD_PAGE, HOME_PAGE} from '../../constants/routes';
 import {getTransactions} from '../../store/transaction/transactionThunk';
 import {selectTransactions} from '../../store/transaction/transactionSlice';
+import dayjs from 'dayjs';
+import {NotePencil, Trash} from '@phosphor-icons/react';
 
 const HomePage = () => {
   const dispatch = useAppDispatch();
@@ -30,17 +32,40 @@ const HomePage = () => {
 
   return (
     <div>
-      <div>
+      <div className="mb-2">
+        Total:
+        {
+          transactions.reduce((sum, item) => {
+            if (item.categoryType.type.toLowerCase() === 'income') {
+              return sum + Number(item.item.amount);
+            } else {
+              return sum - Number(item.item.amount);
+            }
+          }, 0)
+        }
+      </div>
+      <div className="grid grid-cols-1 gap-y-3">
         {
           transactions.map((transaction) =>(
-            <div>
+            <div className="border-black items-center border flex p-2 justify-between">
+              {dayjs(transaction.item.createdAd).format('DD.MM.YYYY HH:mm:ss')}
               <h1>{transaction.categoryType.name}</h1>
               {
                 transaction.categoryType.type.toLowerCase() === 'income' ?
-                  <p>+ {transaction.item.amount}</p>
+                  <p className="text-white bg-green-600 py-[5px] px-[10px]">+{transaction.item.amount}</p>
                   :
-                  <p>-{transaction.item.amount}</p>
+                  <p className="text-white bg-red-600 py-[5px] px-[10px]">-{transaction.item.amount}</p>
               }
+              <div>
+                <button
+                >
+                  <NotePencil size={32}/>
+                </button>
+                <button
+                >
+                  <Trash size={32}/>
+                </button>
+              </div>
             </div>
           ))
         }
