@@ -21,20 +21,25 @@ export const transactionSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(createTransaction.pending, (state) => {
-      state.getTransactionsLoading = false;
+      state.createTranLoading = true;
     });
     builder.addCase(createTransaction.fulfilled, (state) => {
-      state.getTransactionsLoading = false;
+      state.createTranLoading = false;
     });
     builder.addCase(createTransaction.rejected, (state) => {
-      state.getTransactionsLoading = false;
+      state.createTranLoading = false;
     });
     builder.addCase(getTransactions.pending, (state) => {
-      state.getTransactionsLoading = false;
+      state.getTransactionsLoading = true;
     });
     builder.addCase(getTransactions.fulfilled, (state, {payload: transactions}: PayloadAction<ResponseTransactions[]>) => {
       state.getTransactionsLoading = false;
-      state.transactions = transactions;
+      state.transactions = transactions.sort((firstItem, secondItem) => {
+        const dateFirstItem = new Date(firstItem.item.createdAd);
+        const dateSecondItem = new Date(secondItem.item.createdAd);
+
+        return Number(dateSecondItem) - Number(dateFirstItem);
+      });
     });
     builder.addCase(getTransactions.rejected, (state) => {
       state.getTransactionsLoading = false;
@@ -43,5 +48,6 @@ export const transactionSlice = createSlice({
 });
 
 export const transactionReducer = transactionSlice.reducer;
-export const selectCreateTranLoading = (state: RootState) => state.transaction.createTranLoading;
 export const selectTransactions = (state: RootState) => state.transaction.transactions;
+export const selectCreateTranLoading = (state: RootState) => state.transaction.createTranLoading;
+export const selectGetTransLoading = (state: RootState) => state.transaction.getTransactionsLoading;

@@ -35,6 +35,21 @@ export const getTransactions = createAsyncThunk<ResponseTransactions[]>(
   },
 );
 
+export const getTransaction = createAsyncThunk<void, string>(
+  'transaction/getOne',
+  async (id) => {
+    const respone = await axiosApi.get(`/transactions/${id}.json`);
+    console.log(respone.data);
+  }
+);
+
+// export const updateTransaction = createAsyncThunk<void>(
+//   'transaction/update',
+//   async () => {
+//     await axiosApi.put(`/transactions/${id}.json`, transaction);
+//   }
+// );
+
 export const deleteTransaction = createAsyncThunk<void, string>(
   'transaction/delete',
   async (id) => {

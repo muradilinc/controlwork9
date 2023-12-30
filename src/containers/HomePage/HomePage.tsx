@@ -5,14 +5,16 @@ import {useAppDispatch, useAppSelector} from '../../redux/hooks';
 import Modal from '../../components/Modal/Modal';
 import {useLocation, useNavigate} from 'react-router-dom';
 import {ADD_PAGE, HOME_PAGE} from '../../constants/routes';
-import {deleteTransaction, getTransactions} from '../../store/transaction/transactionThunk';
-import {selectTransactions} from '../../store/transaction/transactionSlice';
+import {deleteTransaction, getTransaction, getTransactions} from '../../store/transaction/transactionThunk';
+import {selectGetTransLoading, selectTransactions} from '../../store/transaction/transactionSlice';
 import dayjs from 'dayjs';
 import {NotePencil, Trash} from '@phosphor-icons/react';
+import Spinner from '../../components/Spinner/Spinner';
 
 const HomePage = () => {
   const dispatch = useAppDispatch();
   const transactions = useAppSelector(selectTransactions);
+  const transactionsLoading = useAppSelector(selectGetTransLoading);
   const [modal, setModal] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -30,10 +32,15 @@ const HomePage = () => {
     navigate(HOME_PAGE);
   };
 
+  const selectTran = async (id: string) => {
+    await dispatch(getTransaction(id));
+  };
+
   const deleteHandler = async (id: string) => {
     await dispatch(deleteTransaction(id));
     await dispatch(getTransactions());
   };
+
 
   return (
     <div>
@@ -51,34 +58,39 @@ const HomePage = () => {
           }
         </p>
       </div>
-      <div className="grid grid-cols-1 gap-y-3">
-        {
-          transactions.map((transaction) =>(
-            <div className="border-black items-center border flex p-2 justify-between">
-              {dayjs(transaction.item.createdAd).format('DD.MM.YYYY HH:mm:ss')}
-              <h1>{transaction.categoryType.name}</h1>
-              {
-                transaction.categoryType.type.toLowerCase() === 'income' ?
-                  <p className="text-white bg-green-600 py-[5px] px-[10px]">+{transaction.item.amount}</p>
-                  :
-                  <p className="text-white bg-red-600 py-[5px] px-[10px]">-{transaction.item.amount}</p>
-              }
-              <div>
-                <button
-
-                >
-                  <NotePencil size={32}/>
-                </button>
-                <button
-                  onClick={() => deleteHandler(transaction.id)}
-                >
-                  <Trash size={32}/>
-                </button>
-              </div>
-            </div>
-          ))
-        }
-      </div>
+      {
+        transactionsLoading ?
+          <Spinner/>
+          :
+          <div className="grid grid-cols-1 gap-y-3">
+            {
+              transactions.map((transaction) => (
+                <div key={transaction.id} className="border-black items-center border flex p-2 justify-between">
+                  {dayjs(transaction.item.createdAd).format('DD.MM.YYYY HH:mm:ss')}
+                  <h1>{transaction.categoryType.name}</h1>
+                  {
+                    transaction.categoryType.type.toLowerCase() === 'income' ?
+                      <p className="text-white bg-green-600 py-[5px] px-[10px]">+{transaction.item.amount}</p>
+                      :
+                      <p className="text-white bg-red-600 py-[5px] px-[10px]">-{transaction.item.amount}</p>
+                  }
+                  <div>
+                    <button
+                      onClick={() => selectTran(transaction.id)}
+                    >
+                      <NotePencil size={32}/>
+                    </button>
+                    <button
+                      onClick={() => deleteHandler(transaction.id)}
+                    >
+                      <Trash size={32}/>
+                    </button>
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+      }
       <Modal
         title="Expence/Income"
         show={modal}
